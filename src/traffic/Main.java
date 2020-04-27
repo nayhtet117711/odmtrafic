@@ -104,14 +104,14 @@ public class Main {
 		innerPairs.forEach( np -> System.out.print(Arrays.deepToString(np)));
 		System.out.println();
 		
-		// find all posible paths in graphs
+		// find all posible paths between source and destination nodes in graphs 
 		for(int i=0; i<odMatrix.length; i++) {
 			int[] a = odMatrix[i];
 			for(int j=0; j<a.length; j++) {
 				if(odMatrix[i][j]>0) {
 					Node srcNode = graph.getNodeList().get(i);
 					Node dstNode = graph.getNodeList().get(j);
-					if(true || !srcNode.equals(src) || !dstNode.equals(dst)) {
+					if(true/*(Remove for temporary) || !srcNode.equals(src) || !dstNode.equals(dst)*/) {
 						Vector<Vector<Node>> resultedPathsPossible= Algorithm.discoverAllPathsFromSourceToDestination(graph, srcNode, dstNode);
 						System.out.println("\n===>> "+ srcNode + " - " + dstNode);
 						for(Vector<Node> path : resultedPathsPossible) {
