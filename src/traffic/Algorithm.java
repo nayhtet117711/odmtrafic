@@ -40,12 +40,13 @@ public class Algorithm {
 			}
 			List<Node> adjacencyNodes = Helper.findAdjacencyNodesOfNode(lastNode, graph.getNodeList(),
 					graph.getLinkMatrix());
+			
 			for (Node adjacencyNode : adjacencyNodes) {
 				if (!path.contains(adjacencyNode)) {
 					Vector<Node> newPath = Helper.cloneVector(path);
 					newPath.add(adjacencyNode);
 					paths.add(newPath);
-				}
+				} 
 			}
 		}
 
