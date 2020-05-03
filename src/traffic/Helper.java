@@ -98,15 +98,20 @@ public class Helper {
 	}
 	
 	// Find shortest Path
-	public static Vector<Node> findShortestPath(Vector<Vector<Node>> resultedPaths) {
-		if(resultedPaths.size()==0) return new Vector<Node>();
+	public static Vector<Vector<Node>> findShortestPath(Vector<Vector<Node>> resultedPaths) {
+		if(resultedPaths.size()==0) return new Vector<>();
 		
-		Vector<Node> shortestPath = resultedPaths.get(0);
+		Vector<Vector<Node>> shortestPaths = new Vector<>();
+		int minPathSize = Integer.MAX_VALUE;
 		for(Vector<Node> path : resultedPaths) {
-			if(path.size()<shortestPath.size()) 
-				shortestPath = Helper.cloneVector(path);
+			if(path.size()<minPathSize) 
+				minPathSize = path.size();
 		}
-		return shortestPath;
+		for(Vector<Node> path : resultedPaths) {
+			if(path.size()==minPathSize) 
+				shortestPaths.add(Helper.cloneVector(path));
+		}
+		return shortestPaths;
 	}
 	
 	// print Link Matrix of graph
@@ -174,6 +179,18 @@ public class Helper {
 			noPossibleOutcomes += odMatrix[findIndexInNodeList(fromNode, graph.getNodeList())][findIndexInNodeList(toNode, graph.getNodeList())];
 		}
 		return noPossibleOutcomes;
+	}
+
+	public static List<Node[]> findAllPossibleInnerArcs(Vector<Vector<Node>> shortestPaths) {
+		List<Node[]> passedNodePairs = new ArrayList<>();
+		for(Vector<Node> shortestPath : shortestPaths) {
+			for(int i=1; i<shortestPath.size(); i++) {
+				passedNodePairs.add(new Node[]{ shortestPath.get(i-1), shortestPath.get(i) });
+			}
+		}
+//		System.out.println("check: " );
+//		passedNodePairs.forEach(e -> System.out.println(Arrays.deepToString(e)));
+		return passedNodePairs;
 	}
 
 }

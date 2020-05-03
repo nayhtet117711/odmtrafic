@@ -24,62 +24,67 @@ public class Main {
 		// check Link Matrix works
 		Helper.printLinkMatrix(graph);
 		
-		// check discovering all path from source to destination works
-		Node src = A;
-		Node dst = D;
-		Vector<Vector<Node>> resultedPaths = Algorithm.discoverAllPathsFromSourceToDestination(graph, src, dst);
-		Vector<Node> shortestPath = Helper.findShortestPath(resultedPaths); 
-		
-		Helper.printAllPathFromSrcToDst(resultedPaths, src, dst);
-		System.out.println("\nBest Path: "+ shortestPath);
-		
 		// Crate O-D Matrix
 		int[][] odMatrix = new int[graph.getNodeList().size()][graph.getNodeList().size()];
 		Helper.addVCountToOD(A, C, 100, odMatrix, graph);
 		Helper.addVCountToOD(A, E, 30, odMatrix, graph);
 		Helper.addVCountToOD(A, F, 50, odMatrix, graph);
 		Helper.addVCountToOD(E, C, 40, odMatrix, graph);
-		Helper.addVCountToOD(E, C, 20, odMatrix, graph);
+		Helper.addVCountToOD(D, C, 20, odMatrix, graph);
 		
 		Helper.printODMatrix(graph, odMatrix);
 		
-		List<Node[]> innerArcsPassed = Helper.findAllInnerArcs(shortestPath);
+		// check discovering all path from source to destination works
+		Node src = A;
+		Node dst = E;
+		Vector<Vector<Node>> resultedPaths = Algorithm.discoverAllPathsFromSourceToDestination(graph, src, dst);
+		Vector<Vector<Node>> shortestPaths = Helper.findShortestPath(resultedPaths); 
 		
-		System.out.println("\nPair nodes: ");
-		innerArcsPassed.forEach( np -> System.out.println(Arrays.deepToString(np)));
+		Helper.printAllPathFromSrcToDst(resultedPaths, src, dst);
+		System.out.println("\nBest Path: "+ shortestPaths);
 		
-		Vector<Vector<Node>> possiblePathsPassed = Helper.findAllPossiblePathsPassed(graph, odMatrix, innerArcsPassed);
+		List<Node[]> allPosibleInnerArcsPassed = Helper.findAllPossibleInnerArcs(shortestPaths);
+		Vector<Vector<Node>> allPossiblePathsPassed = Helper.findAllPossiblePathsPassed(graph, odMatrix, allPosibleInnerArcsPassed);
 		
-		Helper.printAllPossiblePath(possiblePathsPassed);
-		
-		int noPossibleOutcomes = Helper.findNoPossibleOutcomes(graph, odMatrix, possiblePathsPassed);
+		int noPossibleOutcomes = Helper.findNoPossibleOutcomes(graph, odMatrix, allPossiblePathsPassed);//shortestPaths.size();
 		System.out.println("\nNo. Possible Outcomes: "+ noPossibleOutcomes);
 		
-		int srcIndex = Helper.findIndexInNodeList(src, graph.getNodeList());
-		int dstIndex = Helper.findIndexInNodeList(dst, graph.getNodeList());
-		int vCountOtoD = odMatrix[srcIndex][dstIndex];
-		
-		System.out.print("\nProbability Nodes: (");
-		for(Node[] pair : innerArcsPassed) {
-			Node oNode = pair[0];
-			Node dNode = pair[1];
-//			int oNodeIndex = Helper.findIndexInNodeList(oNode, graph.getNodeList());
-//			int dNodeIndex = Helper.findIndexInNodeList(dNode, graph.getNodeList());
+		for(Vector<Node> shortestPath : shortestPaths) { 
+			System.out.println("\n---------------------------------------------------");
+			List<Node[]> innerArcsPassed = Helper.findAllInnerArcs(shortestPath);
 			
-			if(oNode.equals(src)) {
-				System.out.print(oNode.toString() + dNode.toString() + ", " + noPossibleOutcomes);
-			} else if(dNode.equals(dst)) {
-				System.out.print(", "+oNode.toString() + dNode.toString()+ ", "+ (vCountOtoD + "/"+noPossibleOutcomes) );
-			} else {
-				System.out.print(", "+oNode.toString() + dNode.toString()+ ", P");
-				List<Node[]> singlePassedNodePair = new ArrayList<>();
-				singlePassedNodePair.add(pair);
-				Vector<Vector<Node>> possiblePathsPassedCurrentOD = Helper.findAllPossiblePathsPassed(graph, odMatrix, singlePassedNodePair);
-				System.out.println("\n"+possiblePathsPassedCurrentOD);
+			 System.out.println("\nInnerArcs Passed: ");
+			 innerArcsPassed.forEach( np -> System.out.println(Arrays.deepToString(np)));
+			
+			 Vector<Vector<Node>> possiblePathsPassed = Helper.findAllPossiblePathsPassed(graph, odMatrix, innerArcsPassed);
+			
+			 Helper.printAllPossiblePath(possiblePathsPassed);
+			
+			int srcIndex = Helper.findIndexInNodeList(src, graph.getNodeList());
+			int dstIndex = Helper.findIndexInNodeList(dst, graph.getNodeList());
+			int vCountOtoD = odMatrix[srcIndex][dstIndex];
+			
+			System.out.print("\nProbability Nodes: (");
+			for(Node[] pair : innerArcsPassed) {
+				Node oNode = pair[0];
+				Node dNode = pair[1];
+	//			int oNodeIndex = Helper.findIndexInNodeList(oNode, graph.getNodeList());
+	//			int dNodeIndex = Helper.findIndexInNodeList(dNode, graph.getNodeList());
+				
+				if(oNode.equals(src)) {
+					System.out.print(oNode.toString() + dNode.toString() + ", " + noPossibleOutcomes);
+				} else if(dNode.equals(dst)) {
+					System.out.print(", "+oNode.toString() + dNode.toString()+ ", "+ (vCountOtoD + "/"+noPossibleOutcomes) );
+				} else {
+					System.out.print(", "+oNode.toString() + dNode.toString()+ ", P");
+					List<Node[]> singlePassedNodePair = new ArrayList<>();
+					singlePassedNodePair.add(pair);
+					Vector<Vector<Node>> possiblePathsPassedCurrentOD = Helper.findAllPossiblePathsPassed(graph, odMatrix, singlePassedNodePair);
+					System.out.println("\n"+possiblePathsPassedCurrentOD);
+				}
 			}
+			System.out.println(")");
 		}
-		System.out.println(")");
-		
 	}
 
 	private static Graph createGraph() {
