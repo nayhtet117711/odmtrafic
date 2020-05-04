@@ -88,6 +88,44 @@ public class Helper {
 		return possiblePathsPassed;
 	}
 	
+	public static Vector<Vector<Node>> findAllPossiblePathsPassed(Graph graph, int[][] odMatrix, Node[] passedNodePairs, Node rootNode) {
+		Vector<Vector<Node>> possiblePathsPassed = new Vector<>();
+		// find all posible paths between source and destination nodes in graphs
+		for (int i = 0; i < odMatrix.length; i++) {
+			int[] a = odMatrix[i];
+			for (int j = 0; j < a.length; j++) {
+				if (odMatrix[i][j] > 0) {
+					Node srcNode = graph.getNodeList().get(i);
+					Node dstNode = graph.getNodeList().get(j);
+					if (true/* (Remove for temporary) || !srcNode.equals(src) || !dstNode.equals(dst) */) {
+						Vector<Vector<Node>> resultedPathsPossible = Algorithm
+								.discoverAllPathsFromSourceToDestination(graph, srcNode, dstNode);
+
+						Vector<Node> tmpPossiblePathsPassed = new Vector<>();
+						for (Vector<Node> path : resultedPathsPossible) {
+
+							if (path.get(0).equals(rootNode) && path.containsAll(Arrays.asList(passedNodePairs))
+									&& path.indexOf(passedNodePairs[1])
+											- path.indexOf(passedNodePairs[0]) == 1) {
+								if (tmpPossiblePathsPassed.size() == 0) {
+									tmpPossiblePathsPassed = path;
+								} else if (tmpPossiblePathsPassed.size() > 0
+										&& tmpPossiblePathsPassed.size() > path.size()) {
+									tmpPossiblePathsPassed = path;
+								}
+							}
+
+						}
+						if (tmpPossiblePathsPassed.size() > 0) {
+							possiblePathsPassed.add(tmpPossiblePathsPassed);
+						}
+					}
+				}
+			}
+		}
+		return possiblePathsPassed;
+	}
+	
 	// Find each pairs of nodes passed
 	public static List<Node[]> findAllInnerArcs(Vector<Node> shortestPath) {
 		List<Node[]> passedNodePairs = new ArrayList<>();
@@ -171,13 +209,28 @@ public class Helper {
 	}
 	
 	// find number of possible outcomes
-	public static int findNoPossibleOutcomes(Graph graph, int[][] odMatrix, Vector<Vector<Node>> possiblePathsPassed) {
+	public static int findNoPossibleOutcomes(Graph graph, int[][] odMatrix, Vector<Vector<Node>> possiblePathsPassed, Node tNode1, Node tNode2) {
 		int noPossibleOutcomes = 0;
 		for(Vector<Node> path1 : possiblePathsPassed) {
 			Node fromNode = path1.get(0);
 			Node toNode = path1.get(path1.size()-1);
-			noPossibleOutcomes += odMatrix[findIndexInNodeList(fromNode, graph.getNodeList())][findIndexInNodeList(toNode, graph.getNodeList())];
+			
+			int numberOfVehicles = odMatrix[findIndexInNodeList(fromNode, graph.getNodeList())][findIndexInNodeList(toNode, graph.getNodeList())];
+			Vector<Vector<Node>> resultedPaths = Algorithm.discoverAllPathsFromSourceToDestination(graph, fromNode, toNode);
+			Vector<Vector<Node>> shortestPaths = Helper.findShortestPath(resultedPaths); 
+			int noPathContainTargetNodes = 0;
+			for (Vector<Node> path : shortestPaths) {
+				if (path.containsAll(Arrays.asList(tNode1, tNode2))
+						&& (path.indexOf(tNode2)- path.indexOf(tNode1)) == 1) {
+					noPathContainTargetNodes++;
+				}
+			}
+			
+//			System.out.println("S-Path: "+ shortestPaths + " : " + (noPathContainTargetNodes+"/"+shortestPaths.size()) + " = " + (numberOfVehicles*noPathContainTargetNodes/shortestPaths.size()));
+			
+			noPossibleOutcomes += numberOfVehicles*noPathContainTargetNodes/shortestPaths.size();
 		}
+//		System.out.println("------------------------------------------------------------------ = "+ noPossibleOutcomes+"\n");
 		return noPossibleOutcomes;
 	}
 
