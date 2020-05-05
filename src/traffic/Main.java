@@ -35,8 +35,8 @@ public class Main {
 		Helper.printODMatrix(graph, odMatrix);
 		
 		// check discovering all path from source to destination works
-		Node src = E;
-		Node dst = A;
+		Node src = A;
+		Node dst = F;
 		Vector<Vector<Node>> resultedPaths = Algorithm.discoverAllPathsFromSourceToDestination(graph, src, dst);
 		Vector<Vector<Node>> shortestPaths = Helper.findShortestPath(resultedPaths); 
 		
@@ -81,7 +81,7 @@ public class Main {
 				String key = oNode.toString() + dNode.toString();
 				String value = previousPossibleOutcomes>0 ? (noPossibleOutcomes+"/"+previousPossibleOutcomes) : String.valueOf(noPossibleOutcomes);
 				System.out.print(startSeparator+key+separator+value);
-				previousPossibleOutcomes = noPossibleOutcomes;
+				if(startFlag) previousPossibleOutcomes = noPossibleOutcomes;
 				startFlag = false;
 				
 //				if(oNode.equals(src)) {
