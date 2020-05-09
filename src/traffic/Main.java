@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Vector;
+import java.util.stream.Collectors;
 
 public class Main {
 	
@@ -33,6 +34,27 @@ public class Main {
 		Helper.addVCountToOD(A, D, 20, odMatrix, graph);
 		
 		Helper.printODMatrix(graph, odMatrix);
+		
+		List<Node> junctions = Helper.findAllJunctions(graph);
+		for(Node junction : junctions) {
+			List<Node> nodesToJunction = Helper.findTurnNotesFromJunction(graph, junction); // act as adjacent nodes
+			System.out.printf("\n\nJunction (%s) :",junction);
+			for(Node fromNode : nodesToJunction) {
+//				System.out.print("\n"+fromNode + " -> " + junction);
+				int noPossibleOutcomes = Helper.findNoPossibleOutcomes(graph, odMatrix, fromNode, junction);	
+//				System.out.println("\nNo. Possible Outcomes: "+ noPossibleOutcomes);
+				List<Node> turnNodes = nodesToJunction.stream().filter(n -> !n.equals(fromNode)).collect(Collectors.toList());
+				for(Node turnNode : turnNodes) {
+					int noFavorableOutcomes = Helper.findNoFavourableOutcomes(graph, odMatrix, fromNode, junction, turnNode);	
+					double probability = Double.valueOf(noFavorableOutcomes)/(noPossibleOutcomes>0 ? noPossibleOutcomes : 1);
+//					System.out.print("\n " + fromNode + " -> " + junction + " -> " + turnNode + " (" + noFavorableOutcomes+ "/" + noPossibleOutcomes + ") = " + probability);
+					System.out.printf("\n(%s%s, %d, %s%s, %d/%d) ", fromNode, junction, noPossibleOutcomes, junction, turnNode, noFavorableOutcomes, noPossibleOutcomes);
+				}
+			}
+		}
+		
+		
+		/*// Previous Version
 		
 		// check discovering all path from source to destination works
 		Node src = A;
@@ -97,7 +119,9 @@ public class Main {
 //				}
 			}
 			System.out.println(")");
+		
 		}
+		*/
 	}
 
 	private static Graph createGraph() {

@@ -6,6 +6,7 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Queue;
 import java.util.Vector;
+import java.util.stream.Collectors;
 
 public class Helper {
 
@@ -88,7 +89,8 @@ public class Helper {
 		return possiblePathsPassed;
 	}
 	
-	public static Vector<Vector<Node>> findAllPossiblePathsPassed(Graph graph, int[][] odMatrix, Node[] passedNodePairs, Node rootNode) {
+	public static Vector<Vector<Node>> findAllPossiblePathsPassed(Graph graph, int[][] odMatrix, Node[] passedNodePairs) {
+//		System.out.println("\nPairrrrrrr "+ Arrays.deepToString(passedNodePairs));
 		Vector<Vector<Node>> possiblePathsPassed = new Vector<>();
 		// find all posible paths between source and destination nodes in graphs
 		for (int i = 0; i < odMatrix.length; i++) {
@@ -100,19 +102,21 @@ public class Helper {
 					if (true/* (Remove for temporary) || !srcNode.equals(src) || !dstNode.equals(dst) */) {
 						Vector<Vector<Node>> resultedPathsPossible = Algorithm
 								.discoverAllPathsFromSourceToDestination(graph, srcNode, dstNode);
-
+						
+						Vector<Vector<Node>> shortestPaths = Helper.findShortestPath(resultedPathsPossible);		
 						Vector<Node> tmpPossiblePathsPassed = new Vector<>();
-						for (Vector<Node> path : resultedPathsPossible) {
+						for (Vector<Node> path : shortestPaths) {
 
-							if (path.get(0).equals(rootNode) && path.containsAll(Arrays.asList(passedNodePairs))
-									&& path.indexOf(passedNodePairs[1])
-											- path.indexOf(passedNodePairs[0]) == 1) {
+							if (path.containsAll(Arrays.asList(passedNodePairs))
+									&& path.indexOf(passedNodePairs[1])- path.indexOf(passedNodePairs[0]) == 1
+									&& (passedNodePairs.length==3 ? (path.indexOf(passedNodePairs[2])- path.indexOf(passedNodePairs[1]) == 1) : true)) {
 								if (tmpPossiblePathsPassed.size() == 0) {
 									tmpPossiblePathsPassed = path;
 								} else if (tmpPossiblePathsPassed.size() > 0
 										&& tmpPossiblePathsPassed.size() > path.size()) {
 									tmpPossiblePathsPassed = path;
 								}
+//								tmpPossiblePathsPassed = path;
 							}
 
 						}
@@ -245,5 +249,55 @@ public class Helper {
 //		passedNodePairs.forEach(e -> System.out.println(Arrays.deepToString(e)));
 		return passedNodePairs;
 	}
-
+	
+	public static List<Node> findTurnNotesFromJunction(Graph graph, Node node) {
+		List<Node> turnedRoutes = new ArrayList<>();
+		int row = Helper.findIndexInNodeList(node, graph.getNodeList());
+		
+		double[][] linkMatrix = graph.getLinkMatrix();
+		for(int column=0; column<linkMatrix[row].length; column++) {
+			if(linkMatrix[row][column]>0) {
+				turnedRoutes.add(graph.getNodeList().get(column));
+			}
+		}
+		return turnedRoutes;
+	}
+	
+	public static List<Node> findAllJunctions(Graph graph) {
+		List<Node> junctions = new ArrayList<>();
+		double[][] linkMatrix = graph.getLinkMatrix();
+		for(int row=0; row<linkMatrix.length; row++) {
+			int numberOfTurn = 0;
+			for(int column=0; column<linkMatrix[row].length; column++) {
+				if(linkMatrix[row][column]>0) {
+					numberOfTurn++;
+				}
+			}
+			if(numberOfTurn>=3) {
+				junctions.add(graph.getNodeList().get(row));
+			}
+		}
+		return junctions;
+	}
+	
+	public static int findNoPossibleOutcomes(Graph graph, int[][] odMatrix, Node fromNode, Node junction) {
+		Vector<Vector<Node>> possiblePathsPassed = new Vector<Vector<Node>>(
+				Helper.findAllPossiblePathsPassed(graph, odMatrix, new Node[] {fromNode, junction})
+				.stream().filter(innLink -> !innLink.get(innLink.size()-1).equals(junction))
+				.collect(Collectors.toList())
+			);
+//		Helper.printAllPossiblePath(possiblePathsPassed);
+		int noPossibleOutcomes = Helper.findNoPossibleOutcomes(graph, odMatrix, possiblePathsPassed, fromNode, junction);//shortestPaths.size();
+//		System.out.println("No. Possible Outcomes: "+ noPossibleOutcomes);
+		return noPossibleOutcomes;
+	}
+	
+	public static int findNoFavourableOutcomes(Graph graph, int[][] odMatrix, Node fromNode, Node junction, Node turnNode) {
+		Vector<Vector<Node>> possiblePathsPassed = Helper.findAllPossiblePathsPassed(graph, odMatrix, new Node[] {fromNode, junction, turnNode});
+//		Helper.printAllPossiblePath(possiblePathsPassed);
+		int noPossibleOutcomes = Helper.findNoPossibleOutcomes(graph, odMatrix, possiblePathsPassed, junction, turnNode);//shortestPaths.size();
+//		System.out.println("No. Possible Outcomes: "+ noPossibleOutcomes);
+		return noPossibleOutcomes;
+	}
+	
 }
