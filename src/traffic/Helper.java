@@ -329,7 +329,7 @@ public class Helper {
 //		Helper.printAllPossiblePath(possiblePathsPassed);
 		int noPossibleOutcomes = Helper.findNoPossibleOutcomes(graph, odMatrix, possiblePathsPassed, fromNode, junction, turnNode);//shortestPaths.size();
 //		System.out.println("No. Possible Outcomes: "+ noPossibleOutcomes);
-		System.out.println(fromNode.toString()+junction.toString()+turnNode+" ==>> "+possiblePathsPassed + " || "+ noPossibleOutcomes);
+//		System.out.println(fromNode.toString()+junction.toString()+turnNode+" ==>> "+possiblePathsPassed + " || "+ noPossibleOutcomes);
 		return noPossibleOutcomes;
 	}
 	
